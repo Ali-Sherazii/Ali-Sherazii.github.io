@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Syed Ali Hassan Jaffri | Security for LLM &amp; RAG Systems</title>
+<meta name="description" content="Syed Ali Hassan Jaffri (Ali Sherazi) — final-year CS at NUST SEECS. Security for machine-learning systems: LLM/RAG robustness, adversarial ML, and the tooling to ship it." />
+
+<!-- ===== TODO for Ali: fill these before publishing =====
+     - Add your photo: create an "Images" folder next to this file and drop in "ali.jpg"
+       (the <img> below already points at Images/ali.jpg — it'll show automatically once the file exists;
+       until then it falls back to an initials avatar)
+    - Email address: alijaffri848@gmail.com
+    - LinkedIn URL is filled in below
+     - CV file: drop a cv.pdf next to this file (link is /cv.pdf)
+    - Real repo URLs are filled in below
+======================================================= -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --paper: #FFFFFF;
+    --band: #F6F7F9;
+    --card: #FFFFFF;
+    --ink: #14161F;
+    --ink-2: #3F4250;
+    --muted: #6B7280;
+    --line: #E6E8EC;
+    --accent: #3B5BDB;
+    --accent-soft: #EEF1FD;
+
+    --purple: #7C5CFC; --purple-soft: #EFEAFE;
+    --blue: #3B6FEF;   --blue-soft: #E5EEFF;
+    --green: #17A673;  --green-soft: #E1F7EE;
+    --amber: #E08A1E;  --amber-soft: #FEF3E1;
+
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --wrap: 1120px;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink-2);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 32px; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: saturate(140%) blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav__inner {
+    max-width: var(--wrap); margin: 0 auto; padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+  }
+  .nav__brand { font-weight: 700; font-size: 1.05rem; color: var(--ink); }
+  .nav__links { display: flex; gap: 28px; flex-wrap: wrap; }
+  .nav__links a { font-size: 0.92rem; color: var(--muted); font-weight: 500; }
+  .nav__links a:hover { color: var(--ink); text-decoration: none; }
+  .nav__links a.active { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Bands ---------- */
+  .band { padding: 64px 0; }
+  .band--alt { background: var(--band); }
+
+  .section-title {
+    font-weight: 800; color: var(--ink); font-size: clamp(1.5rem, 2.6vw, 1.85rem);
+    letter-spacing: -0.015em; margin: 0 0 30px;
+  }
+
+  /* ---------- About ---------- */
+  .about-grid { display: grid; grid-template-columns: 300px 1fr; gap: 64px; align-items: start; }
+  .profile-photo {
+    width: 100%; aspect-ratio: 1 / 1; border-radius: var(--radius);
+    object-fit: cover; background: var(--band); border: 1px solid var(--line);
+    display: block;
+  }
+  .profile-avatar-fallback {
+    width: 100%; aspect-ratio: 1 / 1; border-radius: var(--radius);
+    background: var(--ink); color: #fff; display: none; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 3.6rem; letter-spacing: 0.02em;
+  }
+  .profile-name { font-weight: 800; color: var(--ink); font-size: 1.7rem; letter-spacing: -0.01em; margin: 20px 0 8px; }
+  .profile-role { font-size: 1.02rem; color: var(--ink-2); margin: 0 0 4px; }
+  .profile-line { font-size: 0.95rem; color: var(--ink-2); margin: 0 0 4px; }
+  .profile-email { font-size: 0.95rem; display: inline-block; margin: 8px 0 18px; }
+  .cta-row { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .btn {
+    font-size: 0.88rem; font-weight: 600; padding: 10px 18px; border-radius: 9px;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    transition: border-color .15s ease, background .15s ease, color .15s ease;
+  }
+  .btn:hover { text-decoration: none; border-color: var(--accent); color: var(--accent); }
+  .btn--primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn--primary:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .icon-row { display: flex; gap: 10px; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center; color: var(--ink-2);
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .icon-btn svg { width: 18px; height: 18px; }
+
+  .about-body p { margin: 0 0 18px; font-size: 0.98rem; max-width: 66ch; }
+  .about-body p:last-child { margin-bottom: 0; }
+
+  /* ---------- Timeline (News) ---------- */
+  .timeline-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgba(20,22,31,0.03), 0 12px 28px -20px rgba(20,22,31,0.12);
+    padding: 8px 28px;
+  }
+  .tl-item { padding: 18px 0 18px 18px; border-left: 3px solid var(--accent); border-bottom: 1px solid var(--line); }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-when { font-size: 0.82rem; color: var(--muted); margin: 0 0 4px; }
+  .tl-what { font-size: 0.98rem; color: var(--ink); font-weight: 600; margin: 0; }
+
+  /* ---------- Publications ---------- */
+  .pub-list { display: flex; flex-direction: column; gap: 20px; }
+  .pub-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgba(20,22,31,0.03), 0 12px 28px -20px rgba(20,22,31,0.12);
+    padding: 28px 30px;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .pub-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -24px rgba(20,22,31,0.22); }
+  .pub-title { font-weight: 700; color: var(--ink); font-size: 1.18rem; margin: 0 0 8px; letter-spacing: -0.005em; }
+  .pub-venue { font-size: 0.88rem; color: var(--muted); margin: 0 0 16px; }
+  .pub-desc { font-size: 0.95rem; margin: 0 0 12px; }
+  .pub-desc:last-of-type { margin-bottom: 16px; }
+  .pub-links { display: flex; gap: 18px; font-size: 0.88rem; font-weight: 600; }
+
+  /* ---------- Icon-chip cards (Research / Skills) ---------- */
+  .chip-icon {
+    width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+  }
+  .chip-icon svg { width: 22px; height: 22px; }
+  .chip-icon.c-purple { background: var(--purple-soft); color: var(--purple); }
+  .chip-icon.c-blue { background: var(--blue-soft); color: var(--blue); }
+  .chip-icon.c-green { background: var(--green-soft); color: var(--green); }
+  .chip-icon.c-amber { background: var(--amber-soft); color: var(--amber); }
+
+  .icon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .icon-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgba(20,22,31,0.03), 0 12px 28px -20px rgba(20,22,31,0.12);
+    padding: 24px;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .icon-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px -24px rgba(20,22,31,0.22);
+    border-color: var(--line);
+  }
+  .icon-card:hover .chip-icon { transform: scale(1.06); }
+  .chip-icon { transition: transform .15s ease; }
+  .icon-card__title { font-weight: 700; color: var(--ink); font-size: 1.05rem; margin: 0 0 12px; line-height: 1.3; }
+  .icon-card__list { list-style: none; margin: 0; padding: 0; }
+  .icon-card__list li {
+    font-size: 0.88rem; color: var(--ink-2); padding: 4px 0 4px 16px; position: relative;
+  }
+  .icon-card__list li::before {
+    content: ""; position: absolute; left: 0; top: 11px; width: 6px; height: 6px; border-radius: 50%;
+  }
+  .icon-card.tone-purple .icon-card__list li::before { background: var(--purple); }
+  .icon-card.tone-blue .icon-card__list li::before { background: var(--blue); }
+  .icon-card.tone-green .icon-card__list li::before { background: var(--green); }
+  .icon-card.tone-amber .icon-card__list li::before { background: var(--amber); }
+
+  .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+
+  /* ---------- Projects ---------- */
+  .proj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .proj-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; box-shadow: 0 1px 2px rgba(20,22,31,0.03), 0 12px 28px -20px rgba(20,22,31,0.12);
+    transition: transform .15s ease, box-shadow .15s ease;
+    display: flex; flex-direction: column;
+  }
+  .proj-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -24px rgba(20,22,31,0.22); }
+  .proj-card--wide { grid-column: span 3; }
+  .proj-art { height: 168px; position: relative; }
+  .proj-art::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(16, 18, 24, 0.04), rgba(16, 18, 24, 0.24));
+  }
+  .proj-body { padding: 22px 24px 24px; display: flex; flex-direction: column; flex: 1; }
+  .proj-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .proj-year { font-size: 0.82rem; color: var(--muted); }
+  .proj-tag { font-size: 0.76rem; font-weight: 600; color: var(--ink-2); background: var(--band); padding: 5px 11px; border-radius: 999px; }
+  .proj-tag.live { background: var(--green-soft); color: var(--green); }
+  .proj-tag.wip { background: var(--amber-soft); color: var(--amber); }
+  .proj-title { font-weight: 700; color: var(--ink); font-size: 1.15rem; margin: 0 0 8px; letter-spacing: -0.005em; }
+  .proj-desc { font-size: 0.92rem; margin: 0 0 16px; flex: 1; }
+  .proj-stats { display: flex; gap: 20px; flex-wrap: wrap; margin: 0 0 16px; padding: 12px 14px; background: var(--band); border-radius: 9px; }
+  .proj-stat__label { display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 2px; }
+  .proj-stat__val { font-weight: 700; font-size: 0.92rem; color: var(--ink); }
+  .proj-link { font-size: 0.88rem; font-weight: 600; }
+
+  /* ---------- Contact ---------- */
+  .contact { text-align: center; }
+  .contact p { max-width: 54ch; margin: 0 auto 26px; font-size: 1rem; }
+  .contact .icon-row { justify-content: center; margin-bottom: 30px; }
+  .foot-copy { text-align: center; font-size: 0.85rem; color: var(--muted); padding-top: 26px; border-top: 1px solid var(--line); }
+
+  .reveal { opacity: 0; transform: translateY(12px); transition: opacity .5s ease, transform .5s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  @media (max-width: 900px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .profile-photo, .profile-avatar-fallback { max-width: 220px; }
+    .icon-grid, .skills-grid, .proj-grid { grid-template-columns: 1fr 1fr; }
+    .proj-card--wide { grid-column: span 2; }
+  }
+  @media (max-width: 640px) {
+    .icon-grid, .skills-grid, .proj-grid { grid-template-columns: 1fr; }
+    .proj-card--wide { grid-column: span 1; }
+    .nav__links { gap: 14px 18px; font-size: 0.85rem; }
+    .band { padding: 48px 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .proj-card:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav__inner">
+    <div class="nav__brand">Syed Ali Hassan Jaffri</div>
+    <div class="nav__links">
+      <a href="#about">About</a>
+      <a href="#updates">News</a>
+      <a href="#publications">Publications</a>
+      <a href="#research">Research</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about" class="band">
+  <div class="wrap about-grid">
+    <div class="reveal">
+      <!-- PHOTO: put your picture at Images/ali.jpg — it'll appear automatically -->
+      <img class="profile-photo" src="Images/ali.jpg" alt="Syed Ali Hassan Jaffri"
+           onerror="this.style.display='none'; document.getElementById('avatarFallback').style.display='flex';" />
+      <div id="avatarFallback" class="profile-avatar-fallback">SA</div>
+
+      <p class="profile-name">Syed Ali Hassan Jaffri</p>
+      <p class="profile-role">Security for LLM & RAG Systems</p>
+      <p class="profile-role">Research Fellow</p>
+      <p class="profile-line">Özyeğin University</p>
+      <p class="profile-line">Istanbul, Turkey</p>
+      <p class="profile-line">B.S. Computer Science, NUST SEECS (Expected 2027)</p>
+      <a class="profile-email" href="mailto:alijaffri848@gmail.com">alijaffri848@gmail.com</a>
+
+      <div class="cta-row">
+        <a class="btn btn--primary" href="C:\Users\mps\Desktop\Portfolio\cv.pdf">CV</a>
+        <a class="btn" href="https://www.linkedin.com/in/syed-ali-hassan-jaffri-b46731291/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+
+      <div class="icon-row">
+        <a class="icon-btn" href="https://github.com/Ali-Sherazii" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+        </a>
+        <a class="icon-btn" href="https://www.linkedin.com/in/syed-ali-hassan-jaffri-b46731291/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1.2-2 2.4-2 1.3 0 2.1.8 2.1 2.3V16"/></svg>
+        </a>
+        <a class="icon-btn" href="mailto:alijaffri848@gmail.com" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="reveal about-body">
+      <h2 class="section-title">About</h2>
+      <p>I'm a final-year Computer Science student at NUST SEECS working on security for LLM and RAG systems, adversarial ML, and the tooling needed to actually ship it. My work sits at the intersection of applied machine learning and security</p>
+      <p>My final-year project, RAGShield, targets agentic RAG pipelines, where an attacker can slip poisoned documents into the retrieval corpus or plant false memories through an ordinary-looking conversation, attacks that don't crash the system, they just make it confidently wrong. RAGShield translates three research frameworks, MEMSAD, RAGuard, and TrustRAG into one deployable layer that screens memory before it's trusted and filters poisoned documents during retrieval, without requiring the underlying model to change.</p>
+      <p>Alongside that, I'm a Research Assistant at SEECS, NUST, benchmarking how LLM-based vulnerability detectors hold up against traditional SAST tools once code has been obfuscated, and a Research Intern at Özyeğin University under Prof. Mesut Sayın, working on blockchain integration for adaptive vehicle routing (ARMG-CTOP). AegisVault, an ML-based web application firewall I built independently, runs live.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== NEWS ===================== -->
+<section id="updates" class="band band--alt">
+  <div class="wrap">
+    <h2 class="section-title reveal">News &amp; Updates</h2>
+    <div class="timeline-card reveal">
+      <div class="tl-item">
+        <p class="tl-when">August 2026</p>
+        <p class="tl-what">Joined Dataquartz part-time as an engineer — code obfuscation / IP protection and LLM tooling work</p>
+      </div>
+      <div class="tl-item">
+        <p class="tl-when">April 2026</p>
+        <p class="tl-what">Started writing SoK: Code Obfuscation in the Age of LLM-based Vulnerability Detection</p>
+      </div>
+      <div class="tl-item">
+        <p class="tl-when">June 2026</p>
+        <p class="tl-what">Began final-year project on detecting memory and corpus poisoning in agentic RAG pipelines</p>
+      </div>
+      <div class="tl-item">
+        <p class="tl-when">March 2026</p>
+        <p class="tl-what">Co-authored "Quantum threats to IPFS", accepted at IEEE FIT 2026</p>
+      </div>
+      <div class="tl-item">
+        <p class="tl-when">July 2026</p>
+        <p class="tl-what">Data Science Intern at 10Pearls — built an end-to-end serverless AQI forecasting system</p>
+      </div>
+      <div class="tl-item">
+        <p class="tl-when">June - September 2026</p>
+        <p class="tl-what">Blockchain Engineering Intern at Özyeğin University under Dr. Mesut Sayın — ARMG-CTOP vehicle routing</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PUBLICATIONS ===================== -->
+<section id="publications" class="band">
+  <div class="wrap">
+    <h2 class="section-title reveal">Publications</h2>
+    <div class="pub-list">
+        <div class="pub-card reveal">
+        <h3 class="pub-title">Quantum threats to IPFS <span style="font-weight:400;color:var(--muted);font-size:0.85rem;">(co-author)</span></h3>
+        <p class="pub-venue">Under Review at IEEE FIT &middot; 2026</p>
+        <p class="pub-desc">Co-authored work examining post-quantum security implications for content-addressed storage on IPFS.</p>
+      </div>
+      <div class="pub-card reveal">
+        <h3 class="pub-title">SoK: Code Obfuscation in the Age of LLM-based Vulnerability Detection</h3>
+        <p class="pub-venue">Under Preparation &middot; 2026</p>
+        <p class="pub-desc">A systematization of how obfuscation, a cheap, semantics-preserving transformation, collapses LLM-based and static vulnerability detectors. Builds a benchmark pipeline integrating SAST tools (CodeQL, Infer, Cppcheck, clang-tidy, Snyk, Coverity, and others) as non-LLM baselines.</p>
+      </div>
+            <div class="pub-card reveal">
+        <h3 class="pub-title">Adaptive Robust Green Capacitated Team Orienteering with Multi-Depot Flexibility and Low-Emission Zones</h3>
+        <p class="pub-venue">Manuscript under Preparation &middot; 2026</p>
+        <p class="pub-desc">Building the blockchain integration layer for a TÜBİTAK-funded vehicle-routing research project: five role-based Solidity smart contracts (Hardhat, Ethereum/Sepolia) and a Python backend (FastAPI, web3.py) that logs route plans on-chain and triggers re-optimization.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RESEARCH INTERESTS ===================== -->
+<section id="research" class="band band--alt">
+  <div class="wrap">
+    <h2 class="section-title reveal">Research Interests</h2>
+    <div class="icon-grid reveal">
+      <div class="icon-card tone-purple">
+        <div class="chip-icon c-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-4 10.5c.6.5 1 1.3 1 2.1V16h6v-1.4c0-.8.4-1.6 1-2.1A6 6 0 0 0 12 2z"/></svg>
+        </div>
+        <h3 class="icon-card__title">LLM &amp; RAG Security</h3>
+        <ul class="icon-card__list">
+          <li>Corpus &amp; memory poisoning</li>
+          <li>Prompt injection defense</li>
+          <li>Retrieval-generation hardening</li>
+        </ul>
+      </div>
+      <div class="icon-card tone-blue">
+        <div class="chip-icon c-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5M3 17l9 5 9-5"/></svg>
+        </div>
+        <h3 class="icon-card__title">Adversarial &amp; Applied ML</h3>
+        <ul class="icon-card__list">
+          <li>Detection under adversarial input</li>
+          <li>Layered decision pipelines</li>
+          <li>Confidence calibration</li>
+        </ul>
+      </div>
+      <div class="icon-card tone-green">
+        <div class="chip-icon c-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6M10 3v5.5L5 18a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9.5V3"/></svg>
+        </div>
+        <h3 class="icon-card__title">Code Security</h3>
+        <ul class="icon-card__list">
+          <li>Obfuscation vs. vuln detection</li>
+          <li>SAST &amp; LLM detector benchmarks</li>
+          <li>Threat modeling</li>
+        </ul>
+      </div>
+      <div class="icon-card tone-amber">
+        <div class="chip-icon c-amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>
+        </div>
+        <h3 class="icon-card__title">MLOps &amp; GenAI</h3>
+        <ul class="icon-card__list">
+          <li>Serverless feature &amp; training pipelines</li>
+          <li>CI/CD for ML</li>
+          <li>Deployable demos</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PROJECTS ===================== -->
+<section id="projects" class="band">
+  <div class="wrap">
+    <h2 class="section-title reveal">Selected Projects</h2>
+    <div class="proj-grid">
+
+      <article class="proj-card proj-card--wide reveal">
+        <div class="proj-art" role="img" aria-label="Close-up of computer code representing retrieval augmented generation security" style="background-image:url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=80'); background-size:cover; background-position:center; position:relative; overflow:hidden;">
+          <svg width="100%" height="100%" viewBox="0 0 600 168" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;opacity:0.55;">
+            <g stroke="#ffffff" stroke-width="1" fill="none">
+              <line x1="40" y1="140" x2="150" y2="60"/><line x1="150" y1="60" x2="280" y2="100"/>
+              <line x1="280" y1="100" x2="410" y2="40"/><line x1="410" y1="40" x2="540" y2="120"/>
+              <line x1="150" y1="60" x2="60" y2="30"/><line x1="410" y1="40" x2="470" y2="130"/>
+            </g>
+            <g fill="#ffffff">
+              <circle cx="40" cy="140" r="4"/><circle cx="150" cy="60" r="4"/><circle cx="280" cy="100" r="4"/>
+              <circle cx="410" cy="40" r="4"/><circle cx="540" cy="120" r="4"/><circle cx="60" cy="30" r="3"/><circle cx="470" cy="130" r="3"/>
+            </g>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-meta">
+            <span class="proj-year">2026</span>
+            <span class="proj-tag wip">· Active</span>
+          </div>
+          <h3 class="proj-title">RAGShield</h3>
+          <p class="proj-desc">Defending retrieval-augmented generation against indirect prompt injection and corpus poisoning by building the attack first, then the defense, and measuring the difference.</p>
+          <div class="proj-stats">
+            <div><span class="proj-stat__label">Attack success</span><span class="proj-stat__val">0.667 → 0.333</span></div>
+            <div><span class="proj-stat__label">Benign utility</span><span class="proj-stat__val">Held</span></div>
+            <div><span class="proj-stat__label">Eval model</span><span class="proj-stat__val">Llama 3.1 8B</span></div>
+          </div>
+          <a class="proj-link" href="https://github.com/Ali-Sherazii/RagShield" target="_blank" rel="noopener">View Project →</a>
+        </div>
+      </article>
+
+      <article class="proj-card proj-card--wide reveal">
+        <div class="proj-art" role="img" aria-label="Digital padlock representing web application security" style="background-image:url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1200&q=80'); background-size:cover; background-position:center; position:relative; overflow:hidden;">
+          <svg width="100%" height="100%" viewBox="0 0 600 168" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;opacity:0.5;">
+            <path d="M0 130 L60 130 L80 90 L110 150 L140 60 L170 130 L600 130" fill="none" stroke="#ffffff" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="proj-body">
+          <div class="proj-meta">
+            <span class="proj-year">2026</span>
+            <span class="proj-tag live">Live</span>
+          </div>
+          <h3 class="proj-title">AegisVault</h3>
+          <p class="proj-desc">An ML-based web application firewall. A layered decision pipeline backed by an ML classifier that flags web attacks in real time, with a live demo showing pipeline and classifier confidence on preset attack examples.</p>
+          <div class="proj-stats">
+            <div><span class="proj-stat__label">Accuracy</span><span class="proj-stat__val">99.6%</span></div>
+            <div><span class="proj-stat__label">False positives</span><span class="proj-stat__val">23% → 3.2%</span></div>
+          </div>
+          <a class="proj-link" href="https://github.com/Ali-Sherazii/AegisVault" target="_blank" rel="noopener">View Project →</a>
+        </div>
+      </article>
+
+      <article class="proj-card reveal">
+        <div class="proj-art" role="img" aria-label="Delivery truck driving on a road representing adaptive vehicle routing" style="background-image:url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=1200&q=80'); background-size:cover; background-position:center;"></div>
+        <div class="proj-body">
+          <div class="proj-meta">
+            <span class="proj-year">2026</span>
+          <span class="proj-tag wip">In progress</span>
+          </div>
+          <h3 class="proj-title">ARMG-CTOP</h3>
+          <p class="proj-desc">Blockchain-integrated vehicle routing built at Özyeğin University: five smart contracts with 55 passing tests, a Python backend, and an optimizer wrapping MIP / ALNS / robust-ALNS solvers.</p>
+          <a class="proj-link" href="https://github.com/Ali-Sherazii/ARMGCTOP-Blockchain" target="_blank" rel="noopener">View Project →</a>
+        </div>
+      </article>
+
+      <article class="proj-card reveal">
+        <div class="proj-art" role="img" aria-label="Green forest representing air quality prediction" style="background-image:url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80'); background-size:cover; background-position:center;"></div>
+        <div class="proj-body">
+          <div class="proj-meta">
+            <span class="proj-year">2026</span>
+            <span class="proj-tag wip">In progress</span>
+          </div>
+          <h3 class="proj-title">Pearls AQI Predictor</h3>
+          <p class="proj-desc">End-to-end serverless ML forecasting a city's Air Quality Index three days ahead: pipelines, feature store, CI/CD, a Streamlit dashboard, SHAP explanations, and hazardous-AQI alerts.</p>
+          <a class="proj-link" href="https://github.com/Ali-Sherazii/credily-app" target="_blank" rel="noopener">View Project →</a>
+        </div>
+      </article>
+
+      <article class="proj-card reveal">
+        <div class="proj-art" role="img" aria-label="People interacting around a laptop representing a collaborative full-stack web application" style="background-image:url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80'); background-size:cover; background-position:center;"></div>
+        <div class="proj-body">
+          <div class="proj-meta">
+            <span class="proj-year">2025</span>
+            <span class="proj-tag">Web app</span>
+          </div>
+          <h3 class="proj-title">Credily</h3>
+          <p class="proj-desc">Full-stack MERN application. <!-- TODO: one line on what Credily does --></p>
+          <a class="proj-link" href="https://github.com/Ali-Sherazii/credily-app" target="_blank" rel="noopener">View Project →</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SKILLS ===================== -->
+<section id="skills" class="band band--alt">
+  <div class="wrap">
+    <h2 class="section-title reveal">Skills</h2>
+    <div class="skills-grid reveal">
+      <div class="icon-card tone-purple">
+        <div class="chip-icon c-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6 2 12l6 6M16 6l6 6-6 6"/></svg>
+        </div>
+        <h3 class="icon-card__title">Languages</h3>
+        <ul class="icon-card__list">
+          <li>Python</li><li>Solidity</li><li>JavaScript / TypeScript</li><li>SQL</li><li>C / C++</li>
+        </ul>
+      </div>
+      <div class="icon-card tone-blue">
+        <div class="chip-icon c-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-4 10.5c.6.5 1 1.3 1 2.1V16h6v-1.4c0-.8.4-1.6 1-2.1A6 6 0 0 0 12 2z"/></svg>
+        </div>
+        <h3 class="icon-card__title">ML &amp; GenAI</h3>
+        <ul class="icon-card__list">
+          <li>PyTorch</li><li>scikit-learn</li><li>LangChain</li><li>Chroma</li><li>Ollama</li><li>SHAP</li>
+        </ul>
+      </div>
+      <div class="icon-card tone-green">
+        <div class="chip-icon c-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3h6M10 3v5.5L5 18a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9.5V3"/></svg>
+        </div>
+        <h3 class="icon-card__title">Security</h3>
+        <ul class="icon-card__list">
+          <li>SAST (CodeQL, Infer, Snyk)</li><li>Obfuscation</li><li>Threat modeling</li><li>Adversarial ML</li>
+        </ul>
+      </div>
+      <div class="icon-card tone-amber">
+        <div class="chip-icon c-amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg>
+        </div>
+        <h3 class="icon-card__title">Systems &amp; DevOps</h3>
+        <ul class="icon-card__list">
+          <li>Docker</li><li>FastAPI</li><li>Next.js</li><li>MERN</li><li>GitHub Actions</li>
+        </ul>
+      </div>
+      <div class="icon-card tone-purple">
+        <div class="chip-icon c-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 10a4 4 0 0 0-4-4 5 5 0 0 0-9.6 1.8A4 4 0 0 0 5 15.5h13a3.5 3.5 0 0 0 0-7 4 4 0 0 0-.4.1"/></svg>
+        </div>
+        <h3 class="icon-card__title">Cloud</h3>
+        <ul class="icon-card__list">
+          <li>AWS</li><li>Azure</li>
+        </ul>
+      </div>
+      <div class="icon-card tone-blue">
+        <div class="chip-icon c-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v4M12 17v4M5 5l3 3M16 16l3 3M3 12h4M17 12h4M5 19l3-3M16 8l3-3"/></svg>
+        </div>
+        <h3 class="icon-card__title">Other</h3>
+        <ul class="icon-card__list">
+          <li>web3</li><li>MIP / ALNS solvers</li><li>Embeddings</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONTACT / FOOTER ===================== -->
+<section class="band contact">
+  <div class="wrap">
+    <p class="reveal">I'm interested in research collaborations, PhD/MS opportunities, and corporate roles.</p>
+    <div class="icon-row reveal">
+      <a class="icon-btn" href="https://github.com/Ali-Sherazii" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
+      </a>
+      <a class="icon-btn" href="https://www.linkedin.com/in/syed-ali-hassan-jaffri-b46731291/" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 11v5M8 8v.01M12 16v-5M12 11c0-1.5 1.2-2 2.4-2 1.3 0 2.1.8 2.1 2.3V16"/></svg>
+      </a>
+      <a class="icon-btn" href="mailto:alijaffri848@gmail.com" aria-label="Email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+      </a>
+    </div>
+    <p class="foot-copy">© <span id="year"></span> Syed Ali Hassan Jaffri. All rights reserved.</p>
+  </div>
+</section>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  (function () {
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var els = document.querySelectorAll(".reveal");
+    if (reduce || !("IntersectionObserver" in window)) {
+      els.forEach(function (el) { el.classList.add("in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+    els.forEach(function (el) { io.observe(el); });
+  })();
+
+  // Highlight active nav link on scroll
+  (function () {
+    var links = document.querySelectorAll(".nav__links a");
+    var sections = Array.from(links).map(function(a){ return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+    window.addEventListener("scroll", function () {
+      var pos = window.scrollY + 120;
+      var current = sections[0];
+      sections.forEach(function (s) { if (s.offsetTop <= pos) current = s; });
+      links.forEach(function (a) { a.classList.toggle("active", a.getAttribute("href") === "#" + current.id); });
+    });
+  })();
+</script>
+
+</body>
+</html>
